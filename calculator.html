@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Your Own Calculator, Math is Fun!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="calculator.css">
+
+</head>
+<body>
+     <div class="container">
+        <div class="main-content">
+            <div class="calculator">
+                <div class="display">
+                    <div class="previous-operand"></div>
+                    <div class="current-operand">0</div>
+                </div>
+                <div class="buttons">
+                    <button class="mode-toggle">Mode: Scientific</button>
+                    
+                    <!-- Scientific Functions Row 1 -->
+                    <button class="scientific">sin</button>
+                    <button class="scientific">cos</button>
+                    <button class="scientific">tan</button>
+                    <button class="scientific">π</button>
+                    <button class="number">1</button>
+                    <button class="number">2</button>
+                    <button class="number">3</button>
+                    <button class="operator">÷</button>
+
+                    <!-- Scientific Functions Row 2 -->
+                    <button class="scientific">log</button>
+                    <button class="scientific">ln</button>
+                    <button class="scientific">x²</button>
+                    <button class="scientific">√</button>
+                    <button class="number">4</button>
+                    <button class="number">5</button>
+                    <button class="number">6</button>
+                    <button class="operator">×</button>
+                    
+                    <!-- Scientific Functions Row 3 -->
+                    <button class="scientific">e</button>
+                    <button class="scientific">sin⁻¹</button>
+                    <button class="scientific">cos⁻¹</button>
+                    <button class="scientific">tan⁻¹</button>
+                    <button class="number">7</button>
+                    <button class="number">8</button>
+                    <button class="number">9</button>
+                    <button class="operator">-</button>
+                    
+                    
+                    <!-- Scientific Functions Row 4 -->
+                    <button class="scientific">eˣ</button>
+                    <button class="scientific">1/x</button>
+                    <button class="scientific">%</button>
+                    <button class="scientific">±</button>
+                    <button class="number span-two">0</button>
+                    <button class="decimal">.</button>
+                    <button class="equals">=</button>
+                    <button class="operator">+</button>
+                   
+                    <!-- Basic Calculator Buttons -->
+                    <button class="scientific">x³</button>
+                    <button class="scientific">∛</button>
+                    <button class="scientific">xʸ</button>
+                    <button class="scientific">10ˣ</button>
+                    <button class="clear span-two">AC</button>
+                    <button class="delete">DEL</button>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+      
+
+    <script>
+        // Variabel kalkulator
+        let previousOperand = '';
+        let currentOperand = '0';
+        let operation = undefined;
+        let isScientificMode = true;
+        let isDegreesMode = true; // true = degrees, false = radians
+        
+        // Elemen DOM kalkulator
+        const previousOperandElement = document.querySelector('.previous-operand');
+        const currentOperandElement = document.querySelector('.current-operand');
+        const numberButtons = document.querySelectorAll('.number');
+        const operatorButtons = document.querySelectorAll('.operator');
+        const equalsButton = document.querySelector('.equals');
+        const clearButton = document.querySelector('.clear');
+        const deleteButton = document.querySelector('.delete');
+        const decimalButton = document.querySelector('.decimal');
+        const scientificButtons = document.querySelectorAll('.scientific');
+        const modeToggle = document.querySelector('.mode-toggle');
+        
+        // Fungsi kalkulator
+        function updateDisplay() {
+            currentOperandElement.textContent = currentOperand;
+            if (operation) {
+                previousOperandElement.textContent = `${previousOperand} ${getOperationSymbol(operation)}`;
+            } else {
+                previousOperandElement.textContent = previousOperand;
+            }
+            
+            // Update mode indicator
+            const angleMode = isDegreesMode ? 'DEG' : 'RAD';
+            modeToggle.textContent = `Mode: ${isScientificMode ? 'Scientific' : 'Basic'} | ${angleMode}`;
+        }
+        
+        function getOperationSymbol(op) {
+            switch(op) {
+                case '+': return '+';
+                case '-': return '-';
+                case '×': return '×';
+                case '÷': return '÷';
+                case '^': return '^';
+                default: return '';
+            }
+        }
+        
+        function appendNumber(number) {
+            if (number === '.' && currentOperand.includes('.')) return;
+            
+            if (currentOperand === '0' && number !== '.') {
+                currentOperand = number;
+            } else {
+                currentOperand += number;
+            }
+        }
+        
+        function chooseOperation(op) {
+            if (currentOperand === '') return;
+            
+            if (previousOperand !== '') {
+                compute();
+            }
+            
+            operation = op;
+            previousOperand = currentOperand;
+            currentOperand = '';
+        }
+        
+        function compute() {
+            let computation;
+            const prev = parseFloat(previousOperand);
+            const current = parseFloat(currentOperand);
+            
+            if (isNaN(prev) || isNaN(current)) return;
+            
+            switch(operation) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '×':
+                    computation = prev * current;
+                    break;
+                case '÷':
+                    if (current === 0) {
+                        alert("Tidak bisa membagi dengan nol!");
+                        clear();
+                        return;
+                    }
+                    computation = prev / current;
+                    break;
+                case '^':
+                    computation = Math.pow(prev, current);
+                    break;
+                default:
+                    return;
+            }
+         
+             // Format hasil
+            currentOperand = formatResult(computation);
+            operation = undefined;
+            previousOperand = '';
+        }
+        
+        function formatResult(num) {
+            if (isNaN(num) || !isFinite(num)) {
+                return "Error";
+            }
+            
+            // Untuk angka yang sangat besar atau sangat kecil, gunakan notasi ilmiah
+            if (Math.abs(num) > 1e12 || (Math.abs(num) < 1e-6 && num !== 0)) {
+                return num.toExponential(8);
+            }
+            
+            // Batasi desimal hingga 10 digit
+            const str = num.toString();
+            if (str.includes('.')) {
+                const parts = str.split('.');
+                if (parts[1].length > 10) {
+                    return num.toFixed(10);
+                }
+            }
+            
+            return str;
+        }
+        
+        function clear() {
+            previousOperand = '';
+            currentOperand = '0';
+            operation = undefined;
+        }
+        
+        function deleteLast() {
+            if (currentOperand.length === 1) {
+                currentOperand = '0';
+            } else {
+                currentOperand = currentOperand.slice(0, -1);
+            }
+        }
+        
+        function toggleSign() {
+            if (currentOperand === '0') return;
+            currentOperand = (parseFloat(currentOperand) * -1).toString();
+        }
+        
+        function calculateScientific(func) {
+            const num = parseFloat(currentOperand);
+            if (isNaN(num)) return;
+            
+            let result;
+            let angle = isDegreesMode ? num * Math.PI / 180 : num;
+            
+            switch(func) {
+                case 'sin':
+                    result = Math.sin(angle);
+                    break;
+                case 'cos':
+                    result = Math.cos(angle);
+                    break;
+                case 'tan':
+                    result = Math.tan(angle);
+                    break;
+                case 'sin⁻¹':
+                    result = isDegreesMode ? Math.asin(num) * 180 / Math.PI : Math.asin(num);
+                    break;
+                case 'cos⁻¹':
+                    result = isDegreesMode ? Math.acos(num) * 180 / Math.PI : Math.acos(num);
+                    break;
+                case 'tan⁻¹':
+                    result = isDegreesMode ? Math.atan(num) * 180 / Math.PI : Math.atan(num);
+                    break;
+                case 'log':
+                    if (num <= 0) {
+                        alert("Log hanya untuk angka positif!");
+                        return;
+                    }
+                    result = Math.log10(num);
+                    break;
+                case 'ln':
+                    if (num <= 0) {
+                        alert("Ln hanya untuk angka positif!");
+                        return;
+                    }
+                    result = Math.log(num);
+                    break;
+                case 'x²':
+                    result = Math.pow(num, 2);
+                    break;
+                case 'x³':
+                    result = Math.pow(num, 3);
+                    break;
+                case '√':
+                    if (num < 0) {
+                        alert("Akar kuadrat hanya untuk angka non-negatif!");
+                        return;
+                    }
+                    result = Math.sqrt(num);
+                    break;
+                case '∛':
+                    result = Math.cbrt(num);
+                    break;
+                case '10ˣ':
+                    result = Math.pow(10, num);
+                    break;
+                case 'eˣ':
+                    result = Math.exp(num);
+                    break;
+                case '1/x':
+                    if (num === 0) {
+                        alert("Tidak bisa membagi dengan nol!");
+                        return;
+                    }
+                    result = 1 / num;
+                    break;
+                case '%':
+                    result = num / 100;
+                    break;
+                case 'π':
+                    result = Math.PI;
+                    break;
+                case 'e':
+                    result = Math.E;
+                    break;
+                case 'xʸ':
+                    operation = '^';
+                    previousOperand = currentOperand;
+                    currentOperand = '';
+                    updateDisplay();
+                    return;
+                default:
+                    return;
+            }
+            
+            currentOperand = formatResult(result);
+            updateDisplay();
+        }
+        
+        function toggleAngleMode() {
+            isDegreesMode = !isDegreesMode;
+            updateDisplay();
+        }
+        
+        // Event Listeners
+        numberButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                appendNumber(button.textContent);
+                updateDisplay();
+            });
+        });
+        
+        operatorButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                chooseOperation(button.textContent);
+                updateDisplay();
+            });
+        });
+        
+        equalsButton.addEventListener('click', () => {
+            compute();
+            updateDisplay();
+        });
+        
+        clearButton.addEventListener('click', () => {
+            clear();
+            updateDisplay();
+        });
+        
+        deleteButton.addEventListener('click', () => {
+            deleteLast();
+            updateDisplay();
+        });
+        
+        decimalButton.addEventListener('click', () => {
+            appendNumber('.');
+            updateDisplay();
+        });
+        
+        scientificButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                calculateScientific(button.textContent);
+            });
+        });
+        
+        modeToggle.addEventListener('click', () => {
+            toggleAngleMode();
+        });
+        
+        // Tambahkan dukungan keyboard
+        document.addEventListener('keydown', (event) => {
+            if (event.key >= '0' && event.key <= '9') {
+                appendNumber(event.key);
+                updateDisplay();
+            } else if (event.key === '.') {
+                appendNumber('.');
+                updateDisplay();
+            } else if (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/') {
+                let op;
+                switch(event.key) {
+                    case '+': op = '+'; break;
+                    case '-': op = '-'; break;
+                    case '*': op = '×'; break;
+                    case '/': op = '÷'; break;
+                }
+                chooseOperation(op);
+                updateDisplay();
+            } else if (event.key === 'Enter' || event.key === '=') {
+                event.preventDefault();
+                compute();
+                updateDisplay();
+            } else if (event.key === 'Escape') {
+                clear();
+                updateDisplay();
+            } else if (event.key === 'Backspace') {
+                deleteLast();
+                updateDisplay();
+            } else if (event.key === 'p' || event.key === 'P') {
+                calculateScientific('π');
+            } else if (event.key === 'e' || event.key === 'E') {
+                calculateScientific('e');
+            }
+        });
+        
+        // Inisialisasi
+        updateDisplay();
+           
+    </script>
+</body>
+</html>
