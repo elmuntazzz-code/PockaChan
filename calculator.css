@@ -9,11 +9,13 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        
     justify-content: center;
     align-items: center;
     height: 100vh;
     width: 100vw;
-    overflow: hidden;
     background-image: url('p.jpeg');
     background-repeat: no-repeat;
     background-size: cover;
@@ -221,6 +223,7 @@ body {
                 font-family: Playfair Display;
             }
         }
+
 
 
 
