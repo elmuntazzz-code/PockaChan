@@ -11,7 +11,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 110vh;
+    height: 100vh;
     width: 100vw;
     overflow: hidden;
     background-image: url('p.jpeg');
@@ -221,6 +221,7 @@ body {
                 font-family: Playfair Display;
             }
         }
+
 
 
 
